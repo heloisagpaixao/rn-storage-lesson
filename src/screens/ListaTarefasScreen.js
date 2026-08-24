@@ -147,6 +147,7 @@ export default function ListaTarefasScreen() {
   }
 
   function limparTarefas() {
+    // Limpar TODAS as tarefas da lista, deixando o array vazio.
     setTarefas([]);
   }
 
