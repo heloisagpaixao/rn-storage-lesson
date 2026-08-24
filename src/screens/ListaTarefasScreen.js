@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -10,8 +10,70 @@ import {
   View,
 } from "react-native";
 import TarefaItem from "../components/TarefaItem";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const CHAVE_STORAGE = "@rn-storage-lesson:tarefas";
 
 export default function ListaTarefasScreen() {
+  const [tarefas, setTarefas] = useState([]);
+  const [textoInput, setTextoInput] = useState("");
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    async function carregarTarefas() {
+      try {
+        const tarefasSalvas = await AsyncStorage.getItem(CHAVE_STORAGE);
+        if (tarefasSalvas !== null) {
+          setTarefas(JSON.parse(tarefasSalvas));
+        }
+      } catch (erro) {
+        console.error("Erro ao carregar tarefas do Storage:", erro);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarTarefas();
+  }, []);
+
+  useEffect(() => {
+    if (carregando) return;
+
+    AsyncStorage.setItem(CHAVE_STORAGE, JSON.stringify(tarefas)).catch(
+      (erro) => {
+        console.error("Erro ao salvar tarefas no Storage:", erro);
+      },
+    );
+  }, [tarefas, carregando]);
+
+  function adicionarTarefa() {
+    const texto = textoInput.trim();
+
+    if (texto === "") return;
+
+    const novaTarefa = {
+      id: Date.now().toString(),
+      texto,
+      concluida: false,
+    };
+
+    setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
+    setTextoInput("");
+  }
+
+  function alternarConcluida(id) {
+    setTarefas((tarefasAtuais) =>
+      tarefasAtuais.map((tarefa) =>
+        tarefa.id === id ? { ...tarefa, concluida: !tarefa.concluida } : tarefa,
+      ),
+    );
+  }
+
+  function excluirTarefa(id) {
+    setTarefas((tarefasAtuais) =>
+      tarefasAtuais.filter((tarefa) => tarefa.id !== id),
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -25,12 +87,12 @@ export default function ListaTarefasScreen() {
           placeholder="Digite uma nova tarefa..."
           value={textoInput}
           onChangeText={setTextoInput}
-          onSubmitEditing={}
+          onSubmitEditing={adicionarTarefa}
           returnKeyType="done"
         />
         <TouchableOpacity
           style={styles.botaoAdicionar}
-          onPress={}
+          onPress={adicionarTarefa}
         >
           <Text style={styles.textoBotaoAdicionar}>Adicionar</Text>
         </TouchableOpacity>
@@ -42,8 +104,8 @@ export default function ListaTarefasScreen() {
         renderItem={({ item }) => (
           <TarefaItem
             tarefa={item}
-            aoAlternarConcluida={}
-            aoExcluir={}
+            aoAlternarConcluida={alternarConcluida}
+            aoExcluir={excluirTarefa}
           />
         )}
         ListEmptyComponent={
