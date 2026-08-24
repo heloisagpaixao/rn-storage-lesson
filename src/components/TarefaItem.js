@@ -1,9 +1,14 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 // Componente responsável por renderizar UM item da lista de tarefas.
 // Recebe a tarefa e duas funções (callbacks) vindas do componente pai (a screen)
 // para avisar quando o usuário quer concluir ou excluir essa tarefa.
-export default function TarefaItem({ tarefa, aoAlternarConcluida, aoExcluir }) {
+export default function TarefaItem({
+  tarefa,
+  aoAlternarConcluida,
+  aoExcluir,
+  aoEditar,
+}) {
   return (
     <View style={styles.item}>
       {/* Ao tocar no texto, a tarefa alterna entre concluída/pendente */}
@@ -14,6 +19,13 @@ export default function TarefaItem({ tarefa, aoAlternarConcluida, aoExcluir }) {
         <Text style={[styles.texto, tarefa.concluida && styles.textoConcluido]}>
           {tarefa.texto}
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botaoEditar}
+        onPress={() => aoEditar(tarefa.id)}
+      >
+        <Text style={styles.textoBotaoEditar}>Editar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -28,16 +40,16 @@ export default function TarefaItem({ tarefa, aoAlternarConcluida, aoExcluir }) {
 
 const styles = StyleSheet.create({
   item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginBottom: 10,
     // Sombra leve só para destacar o card (funciona em iOS e Android)
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
@@ -49,21 +61,34 @@ const styles = StyleSheet.create({
   },
   texto: {
     fontSize: 16,
-    color: '#222',
+    color: "#222",
   },
   textoConcluido: {
-    textDecorationLine: 'line-through',
-    color: '#999',
+    textDecorationLine: "line-through",
+    color: "#999",
   },
   botaoExcluir: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: "#e74c3c",
+    borderRadius: 6,
     paddingVertical: 6,
     paddingHorizontal: 10,
-    borderRadius: 6,
+    marginRight: 8,
   },
   textoBotaoExcluir: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  botaoEditar: {
+    backgroundColor: "#f39c12",
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginRight: 8,
+  },
+  textoBotaoEditar: {
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 12,
   },
 });
